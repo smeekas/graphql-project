@@ -1,0 +1,31 @@
+.list {
+  display: flex;
+  flex-wrap: wrap;
+}
+.mission {
+  /* border: 2px solid red; */
+  /* flex: 1; */
+  /* width: ; */
+  text-decoration: none;
+  color: black;
+  cursor: pointer;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: rgb(204, 231, 255);
+  margin: 0.5rem;
+  transition: transform 250ms;
+  transition: box-shadow 100ms;
+}
+.mission:hover {
+  transform: scale(1.1);
+  box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3), 0 15px 12px rgba(0, 0, 0, 0.22);
+}
+.searchbar {
+    outline: none;
+    height: 1.5rem;
+    width: 15rem;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-color: black;
+}

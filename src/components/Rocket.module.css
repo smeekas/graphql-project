@@ -1,0 +1,44 @@
+.rocket{
+    /* border: 2px solid red; */
+    width: 80%;
+    border-radius: 12px;
+    margin: 2rem auto;
+    /* padding: 0.5rem; */
+    background-color: #612ac8;
+    color: #fff;
+}
+.center{
+    text-align: center;
+  }
+.padding{
+    padding: 0.5rem;
+}
+.rocketDetail{
+    font-size: 1.5rem;
+  font-weight: 500;
+  background-color: #00d8e4;
+  color:#612ac8;
+  display: block;
+  text-align: center;
+  padding: 0.5rem;
+}
+.rocketName{
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.info{
+    display: flex;
+    flex-direction: row;
+    /* border: 2px solid blue; */
+
+    
+    justify-content: space-around;
+    padding: 1rem;
+    font-weight: 500;                  
+}
+.moreInfo section{
+    font-weight: 500;
+    padding: 0.25rem;
+}
