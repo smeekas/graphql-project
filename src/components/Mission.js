@@ -1,7 +1,6 @@
 import { gql, useQuery } from "@apollo/client";
 import styles from "./Mission.module.css";
 import { Link, useParams } from "react-router-dom";
-import Rocket from "./Rocket";
 const GET_MISSION = gql`
   query ($id: ID!) {
     launch(id: $id) {
@@ -26,7 +25,7 @@ const GET_MISSION = gql`
 function Mission() {
   const { missionId } = useParams();
   console.log(missionId);
-  const { data, loading, error } = useQuery(GET_MISSION, {
+  const { data, loading } = useQuery(GET_MISSION, {
     variables: {
       id: missionId,
     },

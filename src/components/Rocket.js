@@ -24,7 +24,7 @@ const GET_ROCKET = gql`
 `;
 function Rocket({ id }) {
   const { rocketId } = useParams();
-  const { data, loading, error } = useQuery(GET_ROCKET, {
+  const { data, loading } = useQuery(GET_ROCKET, {
     variables: {
       id: rocketId,
     },
