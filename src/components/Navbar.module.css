@@ -1,0 +1,14 @@
+.navbar{
+    background-color: #612ac8;
+    display: flex;
+    justify-content: space-evenly;
+    padding: 1rem;
+}
+.link{
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+}
+.link:hover{
+    text-decoration: underline;
+}

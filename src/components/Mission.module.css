@@ -5,12 +5,12 @@
   margin: 2rem auto;
   /* padding: 0.5rem; */
   background-color: #612ac8;
-color: #fff;
+  color: #fff;
 }
-.center{
+.center {
   text-align: center;
 }
-.padding{
+.padding {
   padding: 0.25rem;
 }
 .missionName {
@@ -24,7 +24,7 @@ color: #fff;
   font-size: 1.5rem;
   font-weight: 500;
   background-color: #00d8e4;
-  color:#612ac8;
+  color: #612ac8;
   display: block;
   text-align: center;
   padding: 0.5rem;
@@ -39,7 +39,7 @@ color: #fff;
 .rocket {
   display: inline-block;
 }
-.rocketLink{
+.rocketLink {
   text-decoration: none;
   color: white;
 }
@@ -55,7 +55,7 @@ color: #fff;
   justify-content: space-around;
   font-weight: 500;
 }
-.status{
+.status {
   background-color: rgba(255, 255, 255);
   color: black;
   padding: 0.25rem;
@@ -66,4 +66,19 @@ color: #fff;
 }
 .failed {
   color: red;
+}
+.btn {
+  display: block;
+  margin: 0 auto;
+  border: none;
+  outline:none;
+  background-color: #612ac8;
+font-weight: 500;
+font-size: 1.1rem;
+}
+.btn:hover{
+  cursor: pointer;
+  
+  text-decoration: underline;
+  color: #aaa;
 }
