@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import Mission from "./components/Mission";
 import Missions from "./components/Missions";
-import Mutation from "./components/Mutation";
+import Mutation from "./components/Mutation/Mutation";
 import Rocket from "./components/Rocket";
 
 function App() {

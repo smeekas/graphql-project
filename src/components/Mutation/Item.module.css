@@ -1,0 +1,22 @@
+.listItem {
+  padding: 0.25rem;
+  margin: 0.5rem;
+  border-radius: 8px;
+  background-color: aliceblue;
+}
+.edit {
+  color: green;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.delete {
+  color: red;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.editing {
+  display: flex;
+  padding: 0.2rem;
+  justify-content: space-evenly;
+}
