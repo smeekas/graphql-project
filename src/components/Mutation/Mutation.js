@@ -130,7 +130,12 @@ function Mutation() {
       <ul className={styles.list}>
         {data.users
           .filter((user) => {
-            return user.name.includes(search);
+            console.log(user);
+            if (user.name) {
+              return user.name.includes(search);
+            } else {
+              return false;
+            }
           })
           .map((user) => {
             return (
