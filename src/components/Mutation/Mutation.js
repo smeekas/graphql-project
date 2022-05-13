@@ -16,7 +16,11 @@ const GET_USERS = gql`
 const INSERT = gql`
   mutation ($name: String, $rocket: String) {
     insert_users(objects: { name: $name, rocket: $rocket }) {
-      affected_rows
+      returning {
+        id
+        name
+        rocket
+      }
     }
   }
 `;
@@ -27,35 +31,82 @@ const DELETE = gql`
     }
   }
 `;
+const DELETE_ID = gql`
+  mutation ($id: uuid) {
+    delete_users(where: { id: { _eq: $id } }) {
+      returning {
+        id
+      }
+    }
+  }
+`;
 const UPDATE = gql`
   mutation ($id: uuid, $name: String, $rocket: String) {
     update_users(
       where: { id: { _eq: $id } }
       _set: { name: $name, rocket: $rocket }
     ) {
-      affected_rows
+      returning {
+        id
+        name
+        rocket
+      }
     }
   }
 `;
 function Mutation() {
   const insertNameRef = useRef();
   const insertRocketRef = useRef();
+  const [userList, setUserList] = useState();
   const deleteNameRef = useRef();
-  const { data, loading, refetch } = useQuery(GET_USERS);
+  const {  loading, refetch } = useQuery(GET_USERS, {
+    onCompleted: (data) => {
+      setUserList(data.users);
+    },
+  });
   const [addUser] = useMutation(INSERT);
   const [deleteUser] = useMutation(DELETE);
+  const [deleteUserById] = useMutation(DELETE_ID);
   const [updateUser] = useMutation(UPDATE);
   const [update, setUpdate] = useState({});
   const [search, setSearch] = useState("");
-  console.log(update);
+  const [disabledId, setDisabledId] = useState(null);
+  const deleteByIdHandler = (id) => {
+    console.log(id);
+    deleteUserById({
+      variables: {
+        id: id,
+      },
+      onCompleted: (data) => {
+        console.log(data);
+        setUserList((prev) => {
+          return prev.filter((user) => {
+            return user.id !== data.delete_users.returning[0].id;
+          });
+        });
+        // refetch();
+      },
+    });
+  };
   const insertHandler = () => {
     addUser({
       variables: {
         name: insertNameRef.current.value,
         rocket: insertRocketRef.current.value,
       },
-      onCompleted: () => {
-        refetch();
+      onCompleted: (data) => {
+        // refetch();
+        console.log(data);
+        setUserList((prev) => {
+          return [
+            ...prev,
+            {
+              id: data.insert_users.returning[0].id,
+              name: data.insert_users.returning[0].name,
+              rocket: data.insert_users.returning[0].rocket,
+            },
+          ];
+        });
         insertNameRef.current.value = "";
         insertRocketRef.current.value = "";
       },
@@ -68,15 +119,30 @@ function Mutation() {
         name: insertNameRef.current.value,
         rocket: insertRocketRef.current.value,
       },
-      onCompleted: () => {
+      onCompleted: (data) => {
+        setDisabledId(null);
         setUpdate({});
+        console.log(data);
         insertNameRef.current.value = "";
         insertRocketRef.current.value = "";
-        refetch();
+        setUserList((list) => {
+          return list.map((user) => {
+            if (user.id === data.update_users.returning.id) {
+              return {
+                id: data.update_users.returning.id,
+                name: data.update_users.returning.name,
+                rocket: data.update_users.returning.rocket,
+              };
+            }
+            return user;
+          });
+        });
+        // refetch();
       },
     });
   };
   const showUpdate = (data) => {
+    setDisabledId(data.id);
     setUpdate({
       show: true,
       id: data.id,
@@ -88,9 +154,6 @@ function Mutation() {
     deleteUser({
       variables: {
         name: deleteNameRef.current.value,
-      },
-      onCompleted: () => {
-        refetch();
       },
     });
   };
@@ -128,9 +191,8 @@ function Mutation() {
         className={styles.input}
       />
       <ul className={styles.list}>
-        {data.users
+        {userList
           .filter((user) => {
-            console.log(user);
             if (user.name) {
               return user.name.includes(search);
             } else {
@@ -144,6 +206,8 @@ function Mutation() {
                 key={user.id}
                 refetch={refetch}
                 user={user}
+                disabledId={disabledId}
+                deleteById={deleteByIdHandler}
               />
             );
           })}

@@ -1,25 +1,17 @@
 import styles from "./Item.module.css";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
-import { gql, useMutation } from "@apollo/client";
 
-const DELETE = gql`
-  mutation ($id: uuid) {
-    delete_users(where: { id: { _eq: $id } }) {
-      affected_rows
-    }
-  }
-`;
-function Item({ user, refetch, showUpdate }) {
-  const [deleteUser] = useMutation(DELETE);
+function Item({ user, showUpdate, deleteById, disabledId }) {
   const deleteHandler = () => {
-    deleteUser({
-      variables: {
-        id: user.id,
-      },
-      onCompleted: () => {
-        refetch();
-      },
-    });
+    deleteById(user.id);
+    // deleteUser({
+    //   variables: {
+    //     id: user.id,
+    //   },
+    //   onCompleted: () => {
+    //     refetch();
+    //   },
+    // });
   };
   const editHandler = () => {
     const data = {
@@ -30,12 +22,18 @@ function Item({ user, refetch, showUpdate }) {
     showUpdate(data);
   };
   return (
-    <li key={Math.random().toString()} className={styles.listItem}>
+    <li className={styles.listItem}>
       <section>Name:{user.name}</section>
       <section>Rocket:{user.rocket}</section>
       <section className={styles.editing}>
         <FiEdit onClick={editHandler} className={styles.edit} />
-        <FiTrash2 onClick={deleteHandler} className={styles.delete} />
+        <FiTrash2
+          style={
+            disabledId === user.id && { color: "grey", cursor: "not-allowed" }
+          }
+          onClick={disabledId !== user.id && deleteHandler}
+          className={styles.delete}
+        />
       </section>
     </li>
   );
