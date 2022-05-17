@@ -57,14 +57,15 @@ const UPDATE = gql`
 function Mutation() {
   const insertNameRef = useRef();
   const insertRocketRef = useRef();
-  const [userList, setUserList] = useState();
+  // const [userList, setUserList] = useState();
   const deleteNameRef = useRef();
-  const {  loading, refetch } = useQuery(GET_USERS, {
-    onCompleted: (data) => {
-      setUserList(data.users);
-    },
+  const { data, loading, refetch } = useQuery(GET_USERS, {
+    // onCompleted: (data) => {
+    //   setUserList(data.users);
+    // },
   });
-  const [addUser] = useMutation(INSERT);
+
+  const [addUser, { data: insertData }] = useMutation(INSERT);
   const [deleteUser] = useMutation(DELETE);
   const [deleteUserById] = useMutation(DELETE_ID);
   const [updateUser] = useMutation(UPDATE);
@@ -72,41 +73,85 @@ function Mutation() {
   const [search, setSearch] = useState("");
   const [disabledId, setDisabledId] = useState(null);
   const deleteByIdHandler = (id) => {
-    console.log(id);
     deleteUserById({
       variables: {
         id: id,
       },
-      onCompleted: (data) => {
-        console.log(data);
-        setUserList((prev) => {
-          return prev.filter((user) => {
-            return user.id !== data.delete_users.returning[0].id;
-          });
+      update(cache, { data }) {
+        const { users } = cache.readQuery({
+          query: GET_USERS,
         });
-        // refetch();
+        // console.log(users)
+        const new_array = users.filter((user) => {
+          if (user.id !== data.delete_users.returning[0].id) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+        cache.writeQuery({
+          query: GET_USERS,
+          data: {
+            users: new_array,
+          },
+        });
       },
+      optimisticResponse: {
+        __typename: "Mutation",
+        delete_users: {
+          __typename: "users_mutation_response",
+          returning: [
+            {
+              __typename: "users",
+              id: id,
+            },
+          ],
+        },
+      },
+      // onCompleted: (data) => {
+      //   console.log(data);
+      //   setUserList((prev) => {
+      //     return prev.filter((user) => {
+      //       return user.id !== data.delete_users.returning[0].id;
+      //     });
+      //   });
+      //   // refetch();
+      // },
     });
   };
+  // console.log(insertData);
   const insertHandler = () => {
     addUser({
       variables: {
         name: insertNameRef.current.value,
         rocket: insertRocketRef.current.value,
       },
-      onCompleted: (data) => {
-        // refetch();
-        console.log(data);
-        setUserList((prev) => {
-          return [
-            ...prev,
-            {
-              id: data.insert_users.returning[0].id,
-              name: data.insert_users.returning[0].name,
-              rocket: data.insert_users.returning[0].rocket,
-            },
-          ];
+      update(cache, { data }) {
+        const { users } = cache.readQuery({
+          query: GET_USERS,
         });
+        cache.writeQuery({
+          query: GET_USERS,
+          data: {
+            users: [...data.insert_users.returning, ...users],
+          },
+        });
+      },
+      optimisticResponse: {
+        __typename: "Mutation",
+        insert_users: {
+          __typename: "users_mutation_response",
+          returning: [
+            {
+              __typename: "users",
+              id: Math.random().toString(),
+              name: "loading...",
+              rocket: "loading",
+            },
+          ],
+        },
+      },
+      onCompleted: (data) => {
         insertNameRef.current.value = "";
         insertRocketRef.current.value = "";
       },
@@ -119,25 +164,44 @@ function Mutation() {
         name: insertNameRef.current.value,
         rocket: insertRocketRef.current.value,
       },
+      update(cache, { data }) {
+        const { users } = cache.readQuery({
+          query: GET_USERS,
+        });
+        const new_array = users.map((user) => {
+          if (user.id === data.update_users.returning[0].id) {
+            return data.update_users.returning[0];
+          } else {
+            return user;
+          }
+        });
+        cache.writeQuery({
+          query: GET_USERS,
+          data: {
+            users: new_array,
+          },
+        });
+      },
+      optimisticResponse: {
+        __typename: "Mutation",
+        update_users: {
+          __typename: "users_mutation_response",
+          returning: [
+            {
+              __typename: "users",
+              id: update.id,
+              name: "loading..",
+              rocket: "loading...",
+            },
+          ],
+        },
+      },
+
       onCompleted: (data) => {
         setDisabledId(null);
         setUpdate({});
-        console.log(data);
         insertNameRef.current.value = "";
         insertRocketRef.current.value = "";
-        setUserList((list) => {
-          return list.map((user) => {
-            if (user.id === data.update_users.returning.id) {
-              return {
-                id: data.update_users.returning.id,
-                name: data.update_users.returning.name,
-                rocket: data.update_users.returning.rocket,
-              };
-            }
-            return user;
-          });
-        });
-        // refetch();
       },
     });
   };
@@ -155,6 +219,7 @@ function Mutation() {
       variables: {
         name: deleteNameRef.current.value,
       },
+      update,
     });
   };
   if (loading) {
@@ -183,6 +248,7 @@ function Mutation() {
           </button>
         </section>
       </section>
+      {loading && <h2>Loading</h2>}
       search:{" "}
       <input
         onChange={(e) => {
@@ -191,7 +257,7 @@ function Mutation() {
         className={styles.input}
       />
       <ul className={styles.list}>
-        {userList
+        {data.users
           .filter((user) => {
             if (user.name) {
               return user.name.includes(search);

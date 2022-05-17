@@ -31,7 +31,7 @@ function Item({ user, showUpdate, deleteById, disabledId }) {
           style={
             disabledId === user.id && { color: "grey", cursor: "not-allowed" }
           }
-          onClick={disabledId !== user.id && deleteHandler}
+          onClick={disabledId !== user.id ? deleteHandler:()=>{}}
           className={styles.delete}
         />
       </section>
