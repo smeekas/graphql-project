@@ -1,7 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import styles from "./Mutation.module.css";
-import { useRef, useState } from "react";
-import { useMutation } from "@apollo/client";
+import { useContext, useEffect, useRef, useState } from "react";
+import { useMutation, useApolloClient } from "@apollo/client";
 import Item from "./Item";
 const GET_USERS = gql`
   query {
@@ -19,7 +19,7 @@ const INSERT = gql`
       returning {
         id
         name
-        rocket
+        rocke
       }
     }
   }
@@ -70,8 +70,23 @@ function Mutation() {
   const [deleteUserById] = useMutation(DELETE_ID);
   const [updateUser] = useMutation(UPDATE);
   const [update, setUpdate] = useState({});
+  const [err, setErr] = useState({ error: null });
   const [search, setSearch] = useState("");
   const [disabledId, setDisabledId] = useState(null);
+    useEffect(() => {
+    console.log("useEffect");
+    let to;
+    if (err.error) {
+      to = setTimeout(() => {
+        console.log("TIMEOUT");
+        setErr({ error: null });
+      }, 2000);
+    }
+    return () => {
+      clearTimeout(to);
+    };
+  }, [err]);
+  const apolloCtx = useApolloClient();
   const deleteByIdHandler = (id) => {
     deleteUserById({
       variables: {
@@ -81,7 +96,6 @@ function Mutation() {
         const { users } = cache.readQuery({
           query: GET_USERS,
         });
-        // console.log(users)
         const new_array = users.filter((user) => {
           if (user.id !== data.delete_users.returning[0].id) {
             return true;
@@ -108,18 +122,8 @@ function Mutation() {
           ],
         },
       },
-      // onCompleted: (data) => {
-      //   console.log(data);
-      //   setUserList((prev) => {
-      //     return prev.filter((user) => {
-      //       return user.id !== data.delete_users.returning[0].id;
-      //     });
-      //   });
-      //   // refetch();
-      // },
     });
   };
-  // console.log(insertData);
   const insertHandler = () => {
     addUser({
       variables: {
@@ -135,6 +139,11 @@ function Mutation() {
           data: {
             users: [...data.insert_users.returning, ...users],
           },
+        });
+      },
+      onError: (data) => {
+        setErr({
+          error: "error occured",
         });
       },
       optimisticResponse: {
@@ -219,7 +228,9 @@ function Mutation() {
       variables: {
         name: deleteNameRef.current.value,
       },
-      update,
+      onCompleted: () => {
+        refetch();
+      },
     });
   };
   if (loading) {
@@ -227,6 +238,7 @@ function Mutation() {
   }
   return (
     <div>
+      {err.error && <div className={styles.error}>{err.error}</div>}
       <section className={styles.crud}>
         <section className={styles.io}>
           Name:{" "}
